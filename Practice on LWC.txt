@@ -1,0 +1,499 @@
+LWC 
+--------
+HTML
+----
+<template> 
+<lightning-card title='HelloWorld'  icon-Title='custom:custom32'>
+<p> Hello {greeting}</p>
+<lightning-input label='enter the Name ' value={greeting} onchange={handlerevent} ></lighting-input>
+</template>
+
+Java-Script
+-------------
+import {LightingElements ,track} from 'LWC';
+export default class HellowMEssage extends LightingElements{
+@track greeting='Venkat';
+handlerevent(event){
+this.greeting=event.target.name;
+}
+}
+
+Meta.XML
+-----------
+<?xml version="1.0" encoding="UTF-8"?>
+    <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="helloWorld">
+        <apiVersion>46.0</apiVersion>
+        <isExposed>true</isExposed>
+        <targets>
+            <target>lightning__AppPage</target>
+            <target>lightning__RecordPage</target>
+            <target>lightning__HomePage</target>
+          </targets>
+</LightningComponentBundle>
+
+
+What is the Data Binding?
+-------------------------------
+Data Binding in lightning Web Components is the synchronization  between the Controller (Service as Apex class Clnt side is Java Script) and Template (HTML).
+
+What is the one Way data binding?
+----------------------------------------
+One-way data binding is a situation where information flows in only one direction in our case from controller to template(HTML)
+
+
+Example_Program
+-----------------
+<template>
+<h2> My Name is {Name}</h2>
+</template>
+
+
+JavaScript
+---------------
+import{LightningElements} from 'lwc';
+export default class DataBinding extends LightningElements{
+name='venkat';
+}
+
+
+Two-way data binding in LWC
+-------------------------------
+Two data Binding in lWC will help user to exchange data from the Controller to Template and from the Template to Controller.
+It will help to users to establish communication Bi-directionally. 
+
+
+How to achive the TWO-WAY Data _Bindning
+----------------------------------------------
+.The Lighting Web Components programming modeal has given us Decorators that add Functionnality to Property or Function.
+.@track Decorators witch help to us to track property's valus and rerender a components when is it changes
+.@Track Decorator properties are alsom called as the private reactive properties.
+.@track properties help to us to acive the TWO_WAY DataBinding 
+
+Note:-->>
+---------
+	@Track Decorator is powerfull.But remember,Track property only if you want to the Components to rerender When Property value will changes.
+	Don't  Track  every private properties.
+
+Example_Program
+---------------
+HTML
+------
+	<Template>
+		<div>
+			<label for="name"> Enter the Name</label>
+			<input id="name" type="text" name="name" onkeyup={changehandler}  value={name}></input> 
+		</div>
+		<div>
+			<label for="title"> Enter the Title</label>
+			<input id="title" name="ttitle" type="text" onkeyup={chahgehandler} value={titlte}></input>
+		</div>
+		<div>
+			<p>My Name is {name} AND Tittle is the :{title} </p>
+		</div>
+	</template>
+
+
+
+
+
+Java script
+---------------
+	import{LightningElements,Track } from 'lwc';
+	export defaault class Twowaydatabinding extends LightningEleements{
+	@track name='venkat';
+	@track title='SFDC Developer';
+	
+	changehandler(event){
+	this[event.target.value]=event.target.value;
+	}
+	
+
+
+Explain the Above the code 
+----------------------------
+HTML
+----
+.We hae created two input box Name and title respectively.
+.{name} -> is used to the bindName property to input box.
+.{title} -> is used to the bindtitle property to input box 
+.We have defined a changeHandlr that will trigger on any key up.
+.<P> this is used to the test TWO_WAY data binding here .
+
+
+Java_script
+-----------------
+.import LightingElements and track from lwc module.
+.Create a class name TWO_WAY databinding 
+.Define a property name and title 
+.Assged both properties with value venkat and SFDC developer respectively.
+.We have a decorated both properties with @track to @track the changes.
+.Define a function changeHandler that take the value from  textbox and update the property based on the input box name.
+
+
+
+Render HTML Conditionally
+------------------------------
+What is the Directive?
+------------------------
+	Directive are special HTML attributes.the LWC programminfg model has a few custom directives that let you manipulate the DOM useing markup. 
+
+How to render HTML conditionally?
+----------------------------------
+	To render HTML conditionally,add the if:true|if:false directive to nested <template> tag that encloses the conditions content.
+Syntax:-->
+------------
+	if:true | false={expression}
+.Use this directive to  to conditionally render DOM elements in atemplate.
+.The expression can be a javascript identofier(Property).
+.The expression can be  a java script dot notation that accessess aproperty from an object(user.fullName).
+.You can't use ternary operator inside the expression.
+.To compute the value of expression,use a getter in the javaScript class.
+
+Demo Example Program:-
+-----------------------
+
+Note:-->> If:true Demo Explanation
+-------------------------------------
+.This directive show the DOM(Document object Model ) only if the condition is true.
+.in below example, test  will only be visible if showText property will become true.
+.We are setting the showText property true on click of button.
+
+HTML
+----
+	<template>
+		<section id="Show the Section">
+			<h3> if:true Example program</h3>
+			<button class "btn class" onclick={showhandler}>Click me to Show text</button>
+			<template if:true={showtext}>
+				<p> Iam venkatarao ,Salesforce developer, and MCA is COmpleted JNTK.</p>
+			</template>
+		</section>
+	</template>
+
+Java Script
+-----------
+import {LightingElements,track} from 'lwc';
+export class default templateshow extends LightningWElements{
+@track showtest=false
+
+showhandler(){
+this.showtest=true;
+}
+}
+
+
+Second Modeal
+---------------
+Toggle Demo explanation
+--------------------------
+
+
+<template>
+    <section id="toggle_section">
+    <h3>Toggle example</h3>
+    <p>Toggle means flip-flop, If first click hide the text another click show the text.</p>
+    <button class="btn success" onclick={toggleHandler}>Click me to toggle text</button>
+    <template if:true={toggleText}>
+        <p> Hi this is venkatarao SFDC developer </p>
+    </template>
+    </section>
+</template>
+
+
+
+import { LightningElement, track } from 'lwc';
+export default class TemplateHideShow extends LightningElement {
+    @track toggleText = true;
+    toggleHandler(){
+        this.toggleText = !this.toggleText
+    }
+}
+
+
+Conditional based Hide/show Demo explanation
+--------------------------------------------------
+<template>
+    <section id="conditional_section" class="mb-1">
+    <h3>Conditional based Hide/show. Type 'Hello' in textbox.</h3>
+        <input
+        id="name"
+        type="text"
+        name="name"
+        placeholder="Type 'Hello' to see text"
+        onkeyup={changeHandler}
+        value={inputText}
+    />
+    <div if:true={checkText}> //checkText is the getter function that return true/false based on some condition
+        <p>Hello I am Venkatarao.SFDC Developer ,Java Programing,HTML ,CSS and Java script.</p>
+    </div>
+    </section>
+</template>
+
+
+
+
+import { LightningElement, track } from 'lwc';
+export default class TemplateHideShow extends LightningElement {
+    @track inputText = null
+    changeHandler(event){
+        this.inputText = event.target.value
+    }
+
+    get checkText(){
+        return this.inputText === 'Hello'
+    }
+}
+
+
+
+
+
+Parent to child communication
+--------------------------------
+Lightning web component we can pass the details from parent to child using below two way
+
+1.public methods.
+2.public properties.
+
+Note::-->>
+-----------
+We have use the @api decorator to make the children properties / method public available so parent.
+
+
+
+1.public methods.
+-----------------
+ .We can use the @api decorator to make the methods public available so parent can be  able to call.It directly useing JavaScript API.For example create on public methods.
+
+Syntax::-->>
+-------------
+ChildComponenets
+-------------------------
+	@api
+	  changeMessage(StringStr){	
+		this.Message=StringStr.toUpperCase();
+}
+
+
+ParentComponentsComponents
+--------------------------------
+This.template.querySelector('c-child-component').changeMessage(event.target.value);
+
+Note:-->>querySelector() method is a Standard DOM API that return the first Elements that matches the selector.
+
+Example_program
+-----------------
+Step 1) Create one child Component to show message from parent component
+
+ChildCompoents
+---------------
+	<template>
+		Message will come here from Parent Compoent:::--->>{Message}
+	</template>
+
+
+Step 2) Create javaScript method in child component to assign value on child attribute
+
+ChildComponents.Js
+--------------------------
+	import{LightingElements,Track,api} from 'lwc';
+	export default class ChildComponents extends LightingElements{
+	@track Message;
+	@api
+	 changeMessage(StrString){
+		this.Message=strString.touppercase();
+	}
+	}
+
+Step 3) Create one Parent Component to call child component
+
+ParentComponent.html
+-------------------------
+<template>
+    <lightning-card title="Parent to Child Demo">
+        <lightning-layout>
+
+            <lightning-layout-item flexibility="auto" padding="around-small"  >
+                <lightning-input label="Enter the Message" onchange={handleChangeEvent}></lightning-input>
+            </lightning-layout-item>
+          
+            <lightning-layout-item flexibility="auto" padding="around-small">
+                <c-child-Comp></c-child-Comp>
+            </lightning-layout-item>
+          
+        </lightning-layout>
+    </lightning-card>   
+</template>
+
+
+Step 4) Now Create JavsScript method in Parent component to call child method with “this.template.querySelector”.
+
+ParentComponent.js
+---------------------------
+import { LightningElement } from 'lwc';
+
+export default class ParentComponent extends LightningElement {
+    handleChangeEvent(event){
+        this.template.querySelector('c-child-Comp').changeMessage(event.target.value);
+    }
+}
+
+
+Step 5) Update your meta.js file to make this component available for App, home page.
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="parentComponent">
+    <apiVersion>45.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+    </targets>
+</LightningComponentBundle>
+
+
+
+
+2.Public properties
+--------------------
+
+You can make a component property public by prefacing it with the @api decorator. Then, set the public property by an external component
+
+For example, if the c-todo-item child component has the following:
+
+import { LightningElement, api } from 'lwc';
+export default class TodoItem extends LightningElement {
+   @api itemName;
+}
+Set the value from the parent with the following:
+
+<template>
+    <c-todo-item item-name="Milk"></c-todo-item>
+</template>
+
+Public properties are great solutions for passing down primitive values, simple objects, and arrays.
+
+
+
+2) Custom Event Communication In Lightning Web Component (Child To Parent)
+------------------------------------------------------------------------------ 
+  Custom Event is used to make the communacation from child Components to Parent Components.with LWC we can create and Dispatch The custom events.
+
+1.create and Dispatch an events 
+2.Handle an events
+
+1.Create and Dispatch An events 
+---------------------------------
+ a)Create an events
+ b)Dispatch an events 
+	a)create an Events 
+	---------------------
+	    we can use the customevent() Constructor to create an event.
+	    In the constructor we need to pass custom event name and detauls of the event.
+Syntax
+-----------
+	     new.customEvent(eventName,props);
+
+	b)Dispatch Event
+	--------------
+            	we have to dispatch an event at with EventTarget.dispatchEvent() method
+Syntax::
+------------
+	this.dispatchEvent(new customEvent(eventName,props);
+
+
+
+
+2.Handle an events
+------------------
+
+Declarative via html markup : We need to add “on” prefix in the event name in 
+Parent Component during calling of Child Component for Declaratively event listener. 
+
+ParentComponent   
+----------------------
+ <template>
+          <c-child-component oneventName={listenerHandler}></c-child-component >
+     </template>
+
+
+
+JavaScript using addEventListener method :
+---------------------------------------
+	 We can explicitly attach a listener by using the addEventListner method in the parent component like below : 
+
+ChildComponent 
+-----------------
+this.template.addEventListener('eventName', this.handleNotification.bind(this));
+
+
+Example_program
+-----------------
+childComp.html
+
+<template>
+    <lightning-card title="Child Component">
+        <div class="slds-m-around_medium">
+            <lightning-input name="textVal" label="Enter Text" onchange={handleChange}></lightning-input>
+        </div>
+    </lightning-card>
+</template>
+Step 2) Now update Child Comp javaScript file to raise a CustomEvent with text value
+
+childComp.js
+
+import { LightningElement } from 'lwc';
+
+export default class ChildComp extends LightningElement {
+
+   handleChange(event) {
+        event.preventDefault();
+        const name = event.target.value;
+        const selectEvent = new CustomEvent('mycustomevent', {
+            detail: name
+        });
+       this.dispatchEvent(selectEvent);
+    }
+}
+Step 3) Create one Parent component where we will handle the event
+
+Now create parent component. We need to add prefix as “on” before the custom event name and in parent component we need to invoke the event listener as handleCustomEvent using onmycustomevent attribute. we recommend that you conform with the DOM event standard.
+
+No uppercase letters
+No spaces
+Use underscores to separate words
+ParentComponent.html
+
+<template>
+    <div class="slds-m-around_medium">
+        Value From Child :  {msg}
+        <c-child-comp onmycustomevent={handleCustomEvent}></c-child-comp>
+    </div>
+</template>
+Now update parent component javaScript file and add handleCustomEvent method
+
+ParentComponent.js
+
+import { LightningElement , track } from 'lwc';
+
+export default class ParentComponent extends LightningElement {
+    @track msg;
+    handleCustomEvent(event) {
+        const textVal = event.detail;
+        this.msg = textVal;
+    }
+}
+
+ ========================================================
+|Some Poins need to child to Parent Components 		|
+ ========================================================
+
+
+Lifecycle hooks in LWC
+-----------------------------
+
+
+
+
+
