@@ -1,0 +1,610 @@
+Opportunity record creation if Amount is between 100000 to 500000 then populate Hot 
+Opportunity in Description field
+
+public class OpprtunityHandler{
+public static void Oppmethods(list<Opportunity> listopty){
+for(opprtunity op:listopty){
+if(op.Amount>100000 && op.Amount<500000){
+op.decription='Hot Opprtunity';
+}
+}
+Trigger OppAmount on Opportunity(before insert){
+OpprtunityHandler.Oppmethods(trigger.new);
+}
+
+
+When An opportunity is created on any Account,put the Latest opportunity Amount on the 
+Account in the 'Latest Opportunity Amount field.
+
+Public class OpptyAmount{
+public static void Amountadding(list<Opportunity> oppty){
+List<Account> acc=new list<Account>
+for(Opportunity op:oppty){
+if(op.Amount!=null && ap.accountID!=null){
+Account a=new Account();
+a.id=op.accountid;
+a.totalAmount__C=op.Amount;
+acc.add(a);
+}
+}
+if(!acc.isEmpty()){
+update acc;
+}
+}
+
+
+*Upon Account creation or updation if industry is Media then Populate Rating as Hot.
+. implements Account triggers and triggerHandler
+. Also write test class for the code coverage
+
+Public class AccountHandler{
+public static void UpdateRating(list<Account> listAcc,Map<id,Account> oldMap){
+for(Account a:listAcc){
+if((oldMap==null && a.industry==null && a.industry='Media') || (a.industry !=null && a.industry='Media' && a.industry!=oldMap.get(a.id).industry){
+a.industry='HOt';
+}
+}
+}
+
+Triggers AccountTriggers on Account(before insert){
+AccountHandler.UpdateRating(trigger.new,trigger.oldMap);
+}
+
+
+When an account record is created then create a related contact as well As the insert the Contact records .
+
+Public class AccountHandler{
+public static void CreateRelatedContact(list<Account> listAcc){
+List<Contact> listcon=new list<Contact>();
+for(Account a:listAcc){
+Contact c=new Contact();
+c.lastName=a.Name;
+c.FirstName=a.Name;
+c.Phone=a.phone;
+c.AccountId=a.id;
+listCont.add(c);
+}
+if(!listCont.isEmpty()){
+insert listCont;
+}
+
+
+Trigger AccountTriggerHandler on Account(After insert){
+AccountHandler.CreateRelatedContact(trigger.new);
+
+
+When An Account record is created then create a related Opportunity as well As created the Opprtunity recod is created.
+
+Public class AccountHandler{
+public static void OppRelated(List<Account> listacc){
+list<opportunity> opplist=new list<opprtunity>();
+for(Account acc:listacc){
+opprtunity o=new opprtunity();
+o.Name=a.name;
+o.stageName='closed won';
+o.closedDate=system.today();
+o.accountId=a.id;
+opplist.add(o);
+}
+if(!opplist.isempty()){
+insert oplist;
+}
+}
+}
+
+Trigger AccountHandler on Account(After insert){
+AccountHandler.OppRelated(trigger.new);
+}
+
+
+on Account two checkbox fields are available 
+new contact and new opportunity
+On Account creation 
+if new contact checkbox is checked then a related contact should be created
+if new opportunity checkbox is checked and active=yes,tehn related opportunity should be 
+created
+
+Public Class AccountHandler{
+publlic static void RelatedRecords(list<Account> listAcc){
+List<Contact> conlist=new list<Contact>();
+list<Opportunity> oplist=new list<Opportunity>();
+for(Account a:listAcc){
+if(a.New_Contact__c){
+Contact c=new Contact();
+c.LastName=a.name;
+c.AccountId=a.id;
+conlist.add(c);
+}
+if(a.New_Opprtunity__c && a.active=='Yes'){
+Opprtunity o=new Opprtunity();
+o.Name=a.Name;
+o.StageName='Closed won';
+o.closedDate=System.today();
+o.AccountID=a.id;
+oplist.add(o);
+}
+if(!conList.isempty()){
+insert conlist;
+}
+if(!opplist.isempty()){
+insert oplist;
+}
+}
+}
+
+
+
+When Account's phone field is updated then populate below message in description field:
+. phone is Updated!
+. Old Value::XXXXX65 & New value:XXXX63
+
+Public class PhoneUpdate{
+public static void phoneISUpdate(list<Account> listAcc Map<id,Account> oldMap){
+for(Account a:listAcc){
+if(a.phone!=oldMap.get(a.id).phone){
+a.Description='Phon is updated ! Old Phone id '+oldMap.get(a.id).phone+'New Phone is :'+a.phone;
+}
+}
+}
+
+publlic trigger Phoneisupdate on Account(before insert){
+PhoneUpdate.phoneISUpdate(trigger.new ,trigger.oldMap);
+}
+
+
+
+When Account Phone is Updated then Populate Account's Phone Number on all related 
+Contacts in HomePhone Field
+
+Public class Phonefiledupdate{
+public static void phoneisupdate(list<Account> acc ,Map<id,Account> oldMap){
+list<Contact> listcon=new List<contact>();
+Map<id,Account> accids=new Map<id,Account>();
+for(Account a:acc){
+if(a.phone!=null && oldMap!=null && a.phone!=oldMap.get(a.id).phone){
+accids.put(a.id,a);
+}
+}
+
+For(Contact con:[Select LastName ,Phone,HomePhone ,AccountId from Contacct where AccountiD  IN:accids.Keyset()]){
+if(accids.keyset.contains(con.accountID){
+c.phone =accids.get(con.id).phone;
+listcon.add(con);
+}
+
+if(!listcon.isempty()){
+update listCon;
+}
+}
+}
+
+Public trigger PhoneisUpdate on Account(After insert){
+Phonefiledupdate.phoneisupdate(trigger.new,Trigger.oldMap);
+}
+
+Test class
+------------------
+@istest
+private class AccountTestcls{
+@istest 
+Private static void TestPhoneUpdate(){
+list<Account> ac=new List<Account>();
+list<Contact> con=new list<Contact>();
+for(integer i=1;i<=5;i++){
+Account a=new Account();
+a.name='test';
+a.phone='74747474';
+ac.add(a);
+}
+test.starttest()
+insert ac;
+for(Account a:ac){
+Contact c=new Contact();
+c.lastname=a.name;
+c.phone=a.phone;
+c.accountid=a.id;
+con.add(c);
+}
+insert con;
+for(Account aa:ac){
+aa.phone='74748585';
+}
+update aa;
+test.stoptest();
+list<contact> conlist=[Select name,homephone,accountId from Contacts where id=:con[0].id];
+System.assertequal('74748585' conlist[0].homephone);
+}
+}
+
+
+
+
+
+When Account Active field is updated from Yes to No then updated all related 
+opportunities stage to closed lost if stage is not equal to closed won
+.Implement trigger and triggerHandler
+.Also write Test class for code coverage
+
+Public class AccountActiveChageOpp{
+public static void OppStageNameChange(List<Account> listAcc,Map<id,Account> OldMap){
+set<id> ids=new set<id>();
+list<opprtunity> ListOpp=new  list<Opportunity>();
+for(Account a:listAcc){
+if(a.acctive__C=='No' && oldMap.get(a.id).Active=='Yes'){
+ids.add(a.id);
+}
+For(Account a:[Select Name,Active,(Select Id,Name ,StageName from Opportunities) from Account where id in:ids]{
+if(a.opportunities!null){
+for(Opportunity op:a.opprtunities){
+if(op.stageName!='closed lost' && o.stageName!='Closed won'){
+op.stageName='closed lost';
+listOpp.add(op);
+}
+}
+}
+if(!listOpp.isempty()){
+update listOpp;
+}
+}
+
+
+Public AccountTriggerHandle on Account{
+AccountActiveChageOpp.OppStageNameChange(trigger.new ,trigger.oldMap);
+}
+
+
+
+
+prevent Account recods from being edited if the recod is created 7 Days Back.
+. Implements Triggers and TriggerHandler
+. Also Write Test for Code Coverage
+
+
+Public class preventAccount{
+public static void PreventAcc(List<Account> acc){
+for(Account a:acc){
+if(a.createddate<system.today()-7){
+a.addError('you canot updated the Records becoze  of the Created by 7 days ');
+}
+}
+}
+
+Triggers
+------------
+Trigger AccountHandler on Account(before Delete){
+preventAccount.PreventAcc(trigger.old);
+}
+
+Test class
+------------
+@istest
+private class Accounttest{
+@istest
+public static void AccounttestMethods(){
+list<Account> ac=new List<Account>();
+for(integer i=1;i<=5;i++){
+Account a=new Account();
+a.name='Testing';
+a.phone='747474';
+a.createdate=Systemtoday();
+ac.add(a);
+}
+test.starttest();
+delete ac;
+test.stoptest();
+}
+}
+
+
+
+
+
+OPPORTUNITY
+---------------
+/Upon Opportunity record creation if Amount is between 100000 to 500000 then populate Hot  Opportunity in Description fiel
+
+
+Public class OppRecordCreation{
+public static void opprec(list<OPportunity> opplist){
+for(opportunity o:opplist){
+if(o.amount>10000 && a.amount<500000){
+o.description='HOt Opportunity';
+}
+}
+}
+}
+
+Trigger 
+-------------
+Triggers OppAmount on Opportunity(before insert){
+OppRecordCreation.opprec(trigger.new);
+}
+
+
+
+When An opportunity is created on any Account,put the Latest opportunity Amount on the Account in the 'Latest Opportunity Amount field.
+
+public class OpportunityAmount{
+publi static void updateField(List<Opportunity> listOpp){
+List<Account> ac=ne List<Account>();
+for(opportunity o:listOpp){
+if(o.amount!=null && o.accountid!=null){
+Account a=new Account();
+a.name=o.name;
+a.id=o.accountId;
+ac.add(a);
+}
+}
+}
+
+Trigger
+==============
+Trigger OppAMount on Opportunity(after insert){
+public static void OPPAmount(trigger.new);
+
+
+test class
+-------------------
+@istest 
+public class OpportunityTest{
+@istest
+public static void opprtunityAMount(){
+list<Account> ac=new list<Account>();
+list<Opportunity> opp=new List<Opportunity>();
+for(integer i=1;i<5;i++){
+Account a=new Account();
+a.name='test';
+a.phone='741741741';
+ac.add(a);
+}
+insert ac;
+for(account a:ac){
+opportunity o=new opportunity();
+o.name=a.name;
+o.amount=410;
+o.stageName='closed won';
+o.closeddate=system.today();
+o.accountid=a.id;
+opp.add(o);
+}
+test.starttest();
+insert opp;
+test.stoaptest();
+List<Account> acclist=[select name,phon,ToatalAMount__C from Account where id=:ac[0].id];
+list<opportunity> opplist=[select name,phone,amount from opportunity where id =:opp[0].id];
+System.assertequall(410,acclist[0].TotalAmount__C];
+}
+}
+
+
+ Based on Opportunity Stage upon Opportunity creation or Updation,set the Description field as the Opportunity is closed lost or 
+ Opportunity is the closed Won or Opportunity is Opean
+.Implements trigger and TriggerHandler
+.Also Write test class for code Coverage
+
+Public class OppStageName{
+public static void OppupdateDescription(list<Opportunity> listopp,Map<id,Opportunity> oldMap){
+for(Opportunity o:listopp){
+if(oldMap!=null &o.stageName!=oldMap.get(o.id).stageName){
+if(o.stageName='closed won'){
+o.description='opportunity is colsed won';
+}else if(o.stageName='closed lost'){
+o.description='opportunity is clsoed lost';
+}
+else{
+o.description='opportunity is  opean';
+}
+}
+}
+
+Triggers
+---------
+Trigger OppHandler on Opportunity(before inset){
+OppStageName.OppupdateDescription(trigger.new,null);
+}
+
+Test class
+------------
+@istest
+Private  class opportunitytest{
+@istest
+privae static void opptestM(){
+list<opportunity> oplist=new list<opportunity>();
+for(integer i=1;i<5;i++){
+opportunity o=new opportunity();
+o.name='test';
+o.amount=41141;
+o.stageName='closed lost';
+opplist.add(o);
+}
+test.starttest();
+insert oplist;
+
+for(opportunity o1:opplist){
+o1.stageName='closed won'
+}
+upadte opplist;
+test.stoptest();
+List<opportunity> oppupdate=[select name,amount ,description from opportunity where id=:opplist[0].id];
+System.assertequal('losed won',oppupdate[0].description);
+}
+} 
+
+
+
+When an Opportunity stage s change , then create a task record on opoortunity and it to Logged in User/Opportunity Owner.
+.Implement Trigger and TriggerHandler
+.Also write test class for code coverage
+
+public class taskcreate{
+public static void Taskiscreate(list<Opportunity> listopp,Map<id,Opportunity> oldMaP){
+list<task> tasklist=new list<tast>();
+for(opportunity o:listopp){
+if(o.stageName!=oldMap.get(o.id).stageName){
+task ts=new Task();
+ts.whatid=o.id;
+ts.Subject='DEMO";
+ts.Status='Normal';
+ts.priority='Normal';
+ts.ownerId='o.ownerID;
+tasklist.add(ts);
+}
+}
+if(!tastlist.isempty()){
+insert tassklist;
+}
+
+Triggers
+----------------
+Trigger OppHandler on Opportunity(after insert){
+taskcreate.Taskiscreate(trigger.new,trigger.oldMap);
+}
+
+
+TestClass
+----------
+@istest
+private class OppTest{
+@istest
+private static void Opptest(){
+List<opportunity> opplist=new list<opportunity>();
+list<task> listTask=new list<task>();
+for(integer i=1;i<5;i++){
+Opportunity o=new opportunity();
+o.name='test';
+o.phone='7414744';
+o.stageName='closed won';
+o.closedate=system.today();
+opplist.add(o);
+}
+test.starttest();
+insert opplist;
+
+For(opportunity o:oplist){
+task t=new task();
+t.whatId=o.id;
+t.status='Normal;
+t.Subject='Demo';
+t.Priority='Normal';
+listtask.add(t);
+}
+insert listtask;
+for(opportunity o:opplist){
+o.stageName='closed won';
+}
+update  opplist;
+test.stoptest();
+list<task> ts=[Select id ,WhatId from task where whatId=:opplist[0].id];
+System.AssertEuqals(ts[0].whatId,ts[0].whatId);
+}
+}
+
+
+
+*.Apply custom validation in trigger.while creation of Opportunity if Amout
+ is null then throw an error message
+ .Implement Trigger and TriggerHandler
+ .Also Write test class for code Coverage.
+
+Public calss OppAMount{
+public static void OpportunityAmount(list<opportunity> listopp){
+for(opportunity o:listoppo){
+if(o.amount==null){
+o.addError("please enter the Amount value");
+}
+}
+
+Trigger
+--------
+trigger oppAMount on Opportunity(before insert){
+OppAMount.OpportunityAmount(trigger.new);
+}
+
+Testclass
+-------------
+@istest
+private class Oppamount{
+@istest
+private  static void OPPAMOUNT(){
+list<opportunity> opp=new list<opportunity>();
+for(integer i=1;i<5;i++){
+opportunity o=new opportunity();
+o.name='test';
+o.stageName='clsed won';
+o.closedate=System.today();
+o.amount='414141';
+opp.add(o);
+}
+test.starttest();
+boolean flag=false;
+try{
+insert opp;
+}catch(exception ex){
+falge=true;
+boolean  falgecon=(ex.getMessage().contains("please enter the Amount value") ? true:false;
+test.stoptest();
+System.AssertEuqllto(true,falgecon,ex.getMessage());
+}
+}	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
